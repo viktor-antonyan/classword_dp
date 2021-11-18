@@ -2,13 +2,14 @@ const express = require('express');
 const app = express();
 const { connection } = require('./database/connection');
 const user = require('./user/route');
+const authorization = require("./middlewares/authorization");
 const {
     HOST,
     PORT,
 } = process.env;
 
 app.use(express.json());
-
+app.use(authorization)
 app.use('/user', user.route)
 
 connection.connect(function (err) {
