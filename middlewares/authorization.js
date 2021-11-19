@@ -4,8 +4,8 @@ import HttpError from "http-errors";
 const {JWT_SECRET} = process.env
 
 const EXCLUDE = [
-    '/login',
-    '/register',
+    '/user/login',
+    '/user/register',
 ]
 
 export function authorization(req, res, next) {
