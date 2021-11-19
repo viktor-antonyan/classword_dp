@@ -1,7 +1,16 @@
+const jwt = require('jsonwebtoken');
+const fs = require('fs')
+
 const {connection} = require('../database/connection');
 const {StatusCodes} = require('http-status-codes');
 const {validationResult} = require('express-validator');
 const bcrypt = require('bcrypt');
+
+const mimeTypes = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif'
+}
 
 class User {
     // login user
@@ -84,17 +93,19 @@ class User {
 
     // Create a new user
     static create = async function (req, res) {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array()});
-        }
-
-        const passwordHash = bcrypt.hashSync(req.body.password, 5)
-
         try {
+            const {file} = req
+            const imgName = `${file.fieldname}-${Date.now()}${mimeTypes[file.mimetype]}`
+            const folder = `public/images`
+            if (!fs.existsSync(folder)) {
+                fs.mkdirSync(folder, {recursive: true})
+            }
+            const fileName = folder + '/' + imgName
+            fs.writeFileSync(fileName, file.buffer)
+
+            const passwordHash = bcrypt.hashSync(req.body.password, 5)
             let data = new Promise((resolve, reject) => {
-                connection.query('INSERT INTO `users` (`name`, `email`, `password`, `gender`, `dob`) VALUES (?,?,?,?,?)', [req.body.name, req.body.email, passwordHash, req.body.gender, req.body.dob], function (error, results, fields) {
+                connection.query('INSERT INTO `users` (`name`, `email`, `password`, `gender`, `dob`,`avatar`) VALUES (?,?,?,?,?,?)', [req.body.name, req.body.email, passwordHash, req.body.gender, req.body.dob, fileName], function (error, results, fields) {
                     if (error) reject(error);
 
                     console.table(results);
@@ -114,6 +125,7 @@ class User {
     static update = function (req, res) {
         // Create a new user
     }
+
 
     // Delete user by :id
     static destroy = function (req, res) {

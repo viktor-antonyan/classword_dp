@@ -3,13 +3,10 @@ const app = express();
 const { connection } = require('./database/connection');
 const user = require('./user/route');
 const authorization = require("./middlewares/authorization");
-const {
-    HOST,
-    PORT,
-} = process.env;
 
 app.use(express.json());
-app.use(authorization)
+app.use(express.urlencoded({ extended: false }));
+app.use(authorization);
 app.use('/user', user.route)
 
 connection.connect(function (err) {
@@ -27,6 +24,6 @@ connection.connect(function (err) {
     })
 });
 
-app.listen(PORT, () => {
-    console.log(`started: ${HOST}:${PORT}`)
+app.listen(3000, () => {
+    console.log(`started:`)
 })

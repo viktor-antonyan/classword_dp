@@ -1,5 +1,6 @@
-import jwt from "jsonwebtoken";
-import HttpError from "http-errors";
+const HttpError = require("http-errors");
+const jwt = require('jsonwebtoken');
+
 
 const {JWT_SECRET} = process.env
 
@@ -8,7 +9,7 @@ const EXCLUDE = [
     '/user/register',
 ]
 
-export function authorization(req, res, next) {
+function authorization(req, res, next) {
     try {
         const {url} = req
         if (EXCLUDE.includes(url)) {
@@ -27,3 +28,4 @@ export function authorization(req, res, next) {
         next(e)
     }
 }
+module.exports = authorization
